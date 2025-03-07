@@ -80,6 +80,6 @@ class SparePartController extends Controller
     {
         $sparePart->delete();
 
-        return response()->json(['message' => 'SparePart deleted successfully'], 200);
+        return response()->json(200);
     }
 }

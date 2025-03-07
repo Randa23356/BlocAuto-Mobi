@@ -122,6 +122,6 @@ class TransactionController extends Controller
     {
         $transaction->delete();
 
-        return response()->json(['message' => 'Transaction deleted successfully'], 200);
+        return response()->json(200);
     }
 }
