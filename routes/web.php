@@ -5,9 +5,6 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SparePartController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\HistoryController;
-use App\Models\History;
-use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
