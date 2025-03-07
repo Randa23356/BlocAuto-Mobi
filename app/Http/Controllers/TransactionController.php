@@ -122,6 +122,6 @@ class TransactionController extends Controller
     {
         $transaction->delete();
 
-        return response()->json(200);
+        return response()->json();
     }
 }
