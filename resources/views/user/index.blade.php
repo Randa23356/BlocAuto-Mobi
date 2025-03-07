@@ -19,7 +19,7 @@
                     const userEditUrl = "{{ route('user.edit', ['user' => ':id']) }}";
                     const tableOptions = {
                         data: {
-                            headings: ["ID", "Name", "Role", "Aksi"],
+                            headings: ["ID", "Nama", "Jabatan", "Aksi"],
                             data: this.users.map((user, index) => {
                                 const editUser = userEditUrl.replace(':id', user.id);
                                 return [
