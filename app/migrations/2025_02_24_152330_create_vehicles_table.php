@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('customer_id')->constrained()->onDelete('cascade');
+            $table->bigInteger('customer_id')->constrained('customers');
             $table->string('plat');
             $table->string('brand');
             $table->integer('year');

@@ -13,15 +13,20 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('mechanic_id')->constrained('users')->onDelete('cascade');
-            $table->bigInteger('vehicle_id')->constrained('vehicles')->onDelete('cascade');
-            $table->bigInteger('chasier_id')->constrained('users')->onDelete('cascade');
-            $table->bigInteger('customer_id')->constrained('customers')->onDelete('cascade'); // Tambahkan kolom ini
+            $table->bigInteger('mechanic_id')->unsigned();
+            $table->string('mechanic_name');
+            $table->bigInteger('vehicle_id')->unsigned();
+            $table->string('vehicle_name');
+            $table->bigInteger('chasier_id')->unsigned();
+            $table->string('chasier_name');
+            $table->bigInteger('customer_id')->unsigned();
+            $table->string('customer_name');
             $table->integer('quantity');
             $table->datetime('date');
             $table->bigInteger('grand_total');
             $table->text('description');
-            $table->string('spare_parts')->constrained('spare_parts')->onDelete('cascade'); // Tambahkan kolom ini
+            $table->bigInteger('spare_part_id')->unsigned();
+            $table->string('spare_part_name');
             $table->timestamps();
         });
     }

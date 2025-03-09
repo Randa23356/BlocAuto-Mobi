@@ -10,8 +10,7 @@
 
     <div class="pt-5" x-data="form">
         <div class="panel">
-            <form @submit.prevent="submitForm()" method="POST" action="{{ route('user.update', $user->id) }}"
-                x-ref="form">
+            <form @submit.prevent="submitForm()" x-ref="form">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -20,10 +19,10 @@
                         <input id="customName" type="text" placeholder="Nama" class="form-input" x-model="form.name"
                             name="name" />
                         <template x-if="isSubmitForm && form.name">
-                            <p class="text-success mt-1">Nama Sudah Sesuai</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.name">
-                            <p class="text-danger mt-1">Harap isi Form Ini</p>
+                            <p class="text-danger mt-1">Harap Isi Nama</p>
                         </template>
                     </div>
                     <div :class="[isSubmitForm ? (form.role ? 'has-success' : 'has-error') : '']">
@@ -35,7 +34,7 @@
                             <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         <template x-if="isSubmitForm && form.role">
-                            <p class="text-success mt-1">Perkerjaan Sudah Sesuai</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.role">
                             <p class="text-danger mt-1">Harap Pilih Perkerjaan Ini</p>
@@ -55,10 +54,37 @@
                 },
 
                 isSubmitForm: false,
-                submitForm() {
+                async submitForm() {
                     this.isSubmitForm = true;
                     if (this.form.name && this.form.role) {
-                        this.$refs.form.submit();
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = "{{ route('user.update', $user->id) }}";
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    name: this.form.name,
+                                    role: this.form.role,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                this.showMessage('Data berhasil perbaharui', 'success');
+                                setTimeout(() => {
+                                    window.location.href = "{{ route('user.index') }}";
+                                }, 1500);
+                            } else {
+                                this.showMessage('Data gagal diperbaharui', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage('Terjadi kesalahan: ' + error.message, 'error');
+                        }
                     } else {
                         this.showMessage('Harap isi semua form', 'error');
                     }

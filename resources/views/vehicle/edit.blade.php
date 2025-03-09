@@ -10,8 +10,7 @@
 
     <div class="pt-5" x-data="form">
         <div class="panel">
-            <form @submit.prevent="submitForm()" method="POST" action="{{ route('vehicle.update', $vehicle->id) }}"
-                x-ref="form">
+            <form @submit.prevent="submitForm()" x-ref="form">
                 @csrf
                 @method('PUT')
                 <div class="gap-5">
@@ -84,10 +83,40 @@
                 },
 
                 isSubmitForm: false,
-                submitForm() {
+                async submitForm() {
                     this.isSubmitForm = true;
-                    if (this.form.customer_id && this.form.plat && this.form.brand && this.form.year) {
-                        this.$refs.form.submit();
+                    if (this.form.customer_id && this.form.plat && this.form.brand && this.form
+                        .year) {
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = "{{ route('vehicle.update', $vehicle->id) }}";
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    customer_id: this.form.customer_id,
+                                    plat: this.form.plat,
+                                    brand: this.form.brand,
+                                    year: this.form.year,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                this.showMessage('Data berhasil perbaharui', 'success');
+                                setTimeout(() => {
+                                    window.location.href = "{{ route('vehicle.index') }}";
+                                }, 1500);
+                            } else {
+                                this.showMessage('Data gagal diperbaharui', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage('Terjadi kesalahan: ' + error.message, 'error');
+                        }
                     } else {
                         this.showMessage('Harap isi semua form', 'error');
                     }

@@ -1,7 +1,7 @@
 <x-layout.default>
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
-            <a href="/customer" class="text-primary hover:underline">Pelanggan</a>
+            <a href="{{ route('customer.index') }}" class="text-primary hover:underline">Pelanggan</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
             <span>Tambah</span>
@@ -10,7 +10,7 @@
 
     <div class="pt-5" x-data="form">
         <div class="panel">
-            <form @submit.prevent="submitForm()" method="POST" action="{{ route('customer.store') }}" x-ref="form">
+            <form @submit.prevent="submitForm()" x-ref="form">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-5">
                     <div :class="[isSubmitForm ? (form.name ? 'has-success' : 'has-error') : '']">
@@ -63,10 +63,37 @@
                 },
 
                 isSubmitForm: false,
-                submitForm() {
+                async submitForm() {
                     this.isSubmitForm = true;
                     if (this.form.name && this.form.email && this.form.address) {
-                        this.$refs.form.submit();
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = "{{ route('customer.store') }}";
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    name: this.form.name,
+                                    email: this.form.email,
+                                    address: this.form.address,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                this.showMessage('Data berhasil disimpan', 'success');
+                                setTimeout(() => {
+                                    window.location.href = "{{ route('customer.index') }}";
+                                }, 1500);
+                            } else {
+                                this.showMessage('Data gagal disimpan', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage('Terjadi kesalahan: ' + error.message, 'error');
+                        }
                     } else {
                         this.showMessage('Harap isi semua form', 'error');
                     }

@@ -1,7 +1,7 @@
 <x-layout.default>
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
-            <a href="/spare_part" class="text-primary hover:underline">Suku Cadang</a>
+            <a href="{{ route('spare_part.index') }}" class="text-primary hover:underline">Suku Cadang</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
             <span>Tambah</span>
@@ -10,7 +10,7 @@
 
     <div class="pt-5" x-data="form">
         <div class="panel">
-            <form @submit.prevent="submitForm()" method="POST" action="{{ route('spare_part.store') }}" x-ref="form">
+            <form @submit.prevent="submitForm()" x-ref="form">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div :class="[isSubmitForm ? (form.name ? 'has-success' : 'has-error') : '']">
@@ -18,10 +18,10 @@
                         <input id="customName" type="text" placeholder="Nama" class="form-input" x-model="form.name"
                             name="name" />
                         <template x-if="isSubmitForm && form.name">
-                            <p class="text-success mt-1">Isi sesuai</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.name">
-                            <p class="text-danger mt-1">Harap isi form ini</p>
+                            <p class="text-danger mt-1">Harap isi Nama</p>
                         </template>
                     </div>
                     <div :class="[isSubmitForm ? (form.quantity ? 'has-success' : 'has-error') : '']">
@@ -29,10 +29,10 @@
                         <input id="customQuantity" type="number" placeholder="Stok" class="form-input"
                             x-model="form.quantity" name="quantity" />
                         <template x-if="isSubmitForm && form.quantity">
-                            <p class="text-success mt-1">Isi sesuai</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.quantity">
-                            <p class="text-danger mt-1">Harap isi form ini</p>
+                            <p class="text-danger mt-1">Harap isi Stok</p>
                         </template>
                     </div>
                 </div>
@@ -42,10 +42,10 @@
                         <input id="customPrice" type="number" placeholder="Harga" class="form-input"
                             x-model="form.price" name="price" />
                         <template x-if="isSubmitForm && form.price">
-                            <p class="text-success mt-1">Isi sesuai</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.price">
-                            <p class="text-danger mt-1">Harap isi form ini</p>
+                            <p class="text-danger mt-1">Harap isi Harga</p>
                         </template>
                     </div>
                 </div>
@@ -63,12 +63,40 @@
                 },
 
                 isSubmitForm: false,
-                submitForm() {
+                async submitForm() {
                     this.isSubmitForm = true;
                     if (this.form.name && this.form.quantity && this.form.price) {
-                        this.$refs.form.submit();
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = "{{ route('spare_part.store') }}";
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    name: this.form.name,
+                                    quantity: this.form.quantity,
+                                    price: this.form.price,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                this.showMessage('Data berhasil disimpan', 'success');
+                                setTimeout(() => {
+                                    window.location.href =
+                                    "{{ route('spare_part.index') }}";
+                                }, 1500);
+                            } else {
+                                this.showMessage('Data gagal disimpan', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage('Terjadi kesalahan: ' + error.message, 'error');
+                        }
                     } else {
-                        this.showMessage('Harap isi Semua Form', 'error');
+                        this.showMessage('Harap isi semua form', 'error');
                     }
                 },
 

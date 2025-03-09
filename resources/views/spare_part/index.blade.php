@@ -72,10 +72,10 @@
                     return new Promise((resolve) => {
                         new window.Swal({
                             icon: 'warning',
-                            title: 'Are you sure?',
-                            text: "You won't be able to revert this!",
+                            title: 'Yakin menghapus data?',
+                            text: "Data ini akan terhapus loh!",
                             showCancelButton: true,
-                            confirmButtonText: 'Delete',
+                            confirmButtonText: 'Hapus',
                             padding: '2em',
                         }).then((result) => {
                             resolve(result.isConfirmed);
@@ -113,8 +113,8 @@
                                 this.removeSparePartFromList(sparePartId);
                                 this.showMessage("Data berhasil dihapus", "success");
                                 new window.Swal({
-                                    title: 'Deleted!',
-                                    text: 'Your file has been deleted.',
+                                    title: 'Terhapus!',
+                                    text: 'Datamu berhasil terhapus.',
                                     icon: 'success',
                                     customClass: 'sweet-alerts'
                                 });

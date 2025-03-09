@@ -18,7 +18,12 @@ class Transaction extends Model
         'date',
         'grand_total',
         'description',
-        'spare_parts',
+        'spare_part_id',
+        'mechanic_name',
+        'vehicle_name',
+        'chasier_name',
+        'customer_name',
+        'spare_part_name',
     ];
 
     public function mechanic()
@@ -38,7 +43,7 @@ class Transaction extends Model
 
     public function sparePart()
     {
-        return $this->belongsTo(SparePart::class, 'spare_parts');
+        return $this->belongsTo(SparePart::class, 'spare_part_id');
     }
 
     public function customer()

@@ -18,7 +18,6 @@ class TransactionController extends Controller
      */
     public function index()
     {
-
         $transactions = Transaction::with(['mechanic', 'vehicle', 'chasier', 'sparePart', 'customer'])->get();
         return view('transaction.index', compact('transactions'));
     }
@@ -39,7 +38,6 @@ class TransactionController extends Controller
         $chasiers = User::where('role', 'chasier')->get();
         $spareParts = SparePart::all();
         $customers = Customer::all();
-        return View::make('transaction.create', compact('mechanics', 'vehicles', 'chasiers', 'spareParts', 'customers'));
         return view('transaction.create', compact('mechanics', 'vehicles', 'chasiers', 'spareParts', 'customers'));
     }
 
@@ -52,14 +50,24 @@ class TransactionController extends Controller
             'mechanic_id' => 'required|exists:users,id',
             'vehicle_id' => 'required|exists:vehicles,id',
             'chasier_id' => 'required|exists:users,id',
-            'customer_id' => 'required|exists:customers,id', // Perbaiki validasi ini
+            'customer_id' => 'required|exists:customers,id',
             'quantity' => 'required|integer',
             'date' => 'required|date',
             'description' => 'required|string',
-            'spare_parts' => 'required|exists:spare_parts,id',
+            'spare_part_id' => 'required|exists:spare_parts,id', 
         ]);
 
-        $sparePart = SparePart::find($validatedData['spare_parts']);
+        $mechanic = User::find($validatedData['mechanic_id']);
+        $vehicle = Vehicle::find($validatedData['vehicle_id']);
+        $chasier = User::find($validatedData['chasier_id']);
+        $customer = Customer::find($validatedData['customer_id']);
+        $sparePart = SparePart::find($validatedData['spare_part_id']); 
+        
+        $validatedData['mechanic_name'] = $mechanic->name;
+        $validatedData['vehicle_name'] = $vehicle->name;
+        $validatedData['chasier_name'] = $chasier->name;
+        $validatedData['customer_name'] = $customer->name;
+        $validatedData['spare_part_name'] = $sparePart->name;
         $validatedData['grand_total'] = $validatedData['quantity'] * $sparePart->price;
 
         Transaction::create($validatedData);
@@ -68,20 +76,11 @@ class TransactionController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Transaction $transaction)
-    {
-        return view('transaction.show', compact('transaction'));
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Transaction $transaction)
     {
-        // Pastikan date adalah objek Carbon
-        $transaction->date = Carbon::parse($transaction->date)->format('Y-m-d'); // Format tanggal ke 'Y-m-d'
+        $transaction->date = Carbon::parse($transaction->date)->format('Y-m-d');
         $mechanics = User::where('role', 'mechanic')->get();
         $vehicles = Vehicle::all();
         $chasiers = User::where('role', 'chasier')->get();
@@ -100,14 +99,24 @@ class TransactionController extends Controller
             'mechanic_id' => 'required|exists:users,id',
             'vehicle_id' => 'required|exists:vehicles,id',
             'chasier_id' => 'required|exists:users,id',
-            'customer_id' => 'required|exists:customer,id',
+            'customer_id' => 'required|exists:customers,id',
             'quantity' => 'required|integer',
             'date' => 'required|date',
             'description' => 'required|string',
-            'spare_parts' => 'required|exists:spare_parts,id',
+            'spare_part_id' => 'required|exists:spare_parts,id', 
         ]);
 
-        $sparePart = SparePart::find($validatedData['spare_parts']);
+        $mechanic = User::find($validatedData['mechanic_id']);
+        $vehicle = Vehicle::find($validatedData['vehicle_id']);
+        $chasier = User::find($validatedData['chasier_id']);
+        $customer = Customer::find($validatedData['customer_id']);
+        $sparePart = SparePart::find($validatedData['spare_part_id']); 
+
+        $validatedData['mechanic_name'] = $mechanic->name;
+        $validatedData['vehicle_name'] = $vehicle->name;
+        $validatedData['chasier_name'] = $chasier->name;
+        $validatedData['customer_name'] = $customer->name;
+        $validatedData['spare_part_name'] = $sparePart->name;
         $validatedData['grand_total'] = $validatedData['quantity'] * $sparePart->price;
 
         $transaction->update($validatedData);

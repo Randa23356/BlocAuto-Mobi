@@ -1,7 +1,7 @@
 <x-layout.default>
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
-            <a href="/customer" class="text-primary hover:underline">Pelanggan</a>
+            <a href="{{ route('customer.index') }}" class="text-primary hover:underline">Pelanggan</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
             <span>Edit</span>
@@ -10,17 +10,16 @@
 
     <div class="pt-5" x-data="form">
         <div class="panel">
-            <form @submit.prevent="submitForm()" method="POST" action="{{ route('customer.update', $customer->id) }}"
-                x-ref="form">
+            <form @submit.prevent="submitForm()" x-ref="form">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-5">
                     <div :class="[isSubmitForm ? (form.name ? 'has-success' : 'has-error') : '']">
                         <label for="customName">Nama</label>
                         <input id="customName" type="text" placeholder="Nama" class="form-input" x-model="form.name"
-                            name="name" value="{{ $customer->name }}" />
+                            name="name" />
                         <template x-if="isSubmitForm && form.name">
-                            <p class="text-success mt-1"> Mantap Sudah Terisi!</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.name">
                             <p class="text-danger mt-1">Harap isi Nama</p>
@@ -29,9 +28,9 @@
                     <div :class="[isSubmitForm ? (form.email ? 'has-success' : 'has-error') : '']">
                         <label for="customEmail">Email</label>
                         <input id="customEmail" type="email" placeholder="Email" class="form-input"
-                            x-model="form.email" name="email" value="{{ $customer->email }}" />
+                            x-model="form.email" name="email" />
                         <template x-if="isSubmitForm && form.email">
-                            <p class="text-success mt-1"> Mantap Sudah Terisi!</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.email">
                             <p class="text-danger mt-1">Harap isi Email</p>
@@ -42,9 +41,9 @@
                     <div :class="[isSubmitForm ? (form.address ? 'has-success' : 'has-error') : '']">
                         <label for="customAddress">Alamat</label>
                         <textarea id="customAddress" rows="3" class="form-textarea" placeholder="Masukkan Alamat" x-model="form.address"
-                            name="address">{{ $customer->address }}</textarea>
+                            name="address"></textarea>
                         <template x-if="isSubmitForm && form.address">
-                            <p class="text-success mt-1"> Mantap Sudah Terisi!</p>
+                            <p class="text-success mt-1">Mantap Sudah Terisi!</p>
                         </template>
                         <template x-if="isSubmitForm && !form.address">
                             <p class="text-danger mt-1">Harap isi Alamat</p>
@@ -65,10 +64,38 @@
                 },
 
                 isSubmitForm: false,
-                submitForm() {
+                async submitForm() {
                     this.isSubmitForm = true;
                     if (this.form.name && this.form.email && this.form.address) {
-                        this.$refs.form.submit();
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = "{{ route('customer.update', $customer->id) }}";
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    name: this.form.name,
+                                    email: this.form.email,
+                                    address: this.form.address,
+                                }),
+                            });
+
+                            if (response.ok) {
+                                this.showMessage('Data berhasil diperbaharui', 'success');
+                                setTimeout(() => {
+                                    window.location.href = "{{ route('customer.index') }}";
+                                }, 1500);
+                            } else {
+                                this.showMessage('Data gagal diperbaharui', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage('Terjadi kesalahan: ' + error.message, 'error');
+                        }
                     } else {
                         this.showMessage('Harap isi semua form', 'error');
                     }
